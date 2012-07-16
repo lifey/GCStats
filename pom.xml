@@ -58,7 +58,7 @@
                     <descriptors>
                         <descriptor>assembly/bin.xml</descriptor>
                     </descriptors>
-                    <finalName>ThreadTop_${project.version}</finalName>
+                    <finalName>GCStats_${project.version}</finalName>
                     <outputDirectory>${project.build.directory}/dist</outputDirectory>
                     <workDirectory>${project.build.directory}/assembly/work</workDirectory>
                 </configuration>
