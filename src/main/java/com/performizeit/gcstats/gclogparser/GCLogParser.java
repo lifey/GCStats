@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 /**
  *
  * @author yadidh
@@ -140,46 +139,39 @@ public class GCLogParser {
 
     }
 
-  
-
-    private static HashMap<String, Aggr> getAggrByCause(ArrayList<GCevent> gcEvents,boolean isConc,float thresh) {
+    private static HashMap<String, Aggr> getAggrByCause(ArrayList<GCevent> gcEvents, boolean isConc, float thresh) {
         HashMap<String, Aggr> causes = new HashMap<>();
 
         for (GCevent gc : gcEvents) {
-            if (gc.isConcurrent()!= isConc) continue;
+            if (gc.isConcurrent() != isConc) {
+                continue;
+            }
             Aggr causeAggr = causes.get(gc.cause);
             if (causeAggr == null) {
                 causeAggr = new Aggr(thresh);
                 causes.put(gc.cause, causeAggr);
-            } 
-            causeAggr.add(gc.real,gc.user,gc.sys);
+            }
+            causeAggr.add(gc.real, gc.user, gc.sys);
 
         }
         return causes;
     }
 
- 
-
-
-
-
-    private static Aggr getAggr(ArrayList<GCevent> gcEvents, boolean isConc,float threshhold) {
+    private static Aggr getAggr(ArrayList<GCevent> gcEvents, boolean isConc, float threshhold) {
         Aggr a = new Aggr(threshhold);
         for (GCevent gc : gcEvents) {
             if (gc.isConcurrent() != isConc) {
                 continue;
             }
-            a.add(gc.real,gc.user,gc.sys);
+            a.add(gc.real, gc.user, gc.sys);
         }
         return a;
     }
 
-  
-    
     private static ArrayList<GCevent> getGCEvents(ArrayList<String> gcEventsStrs) {
         ArrayList<GCevent> gcEvents = new ArrayList<>();
         Pattern tsToken = Pattern.compile("^([0-9\\.]*): \\[([\\.\\-a-z A-Z\\(\\)]*)[\\[\\]:,0-9]");
-        Pattern endToken = Pattern.compile(".*\\[Times: user=([0-9\\.]*) sys=([0-9\\.]*), real=([0-9\\.]*) secs\\] $");
+        Pattern endToken = Pattern.compile(".*\\[Times: user=([0-9\\.]*) sys=([0-9\\.]*), real=([0-9\\.]*) secs\\]\\s*$");
         for (String event : gcEventsStrs) {
 
             Matcher tsM = tsToken.matcher(event);
@@ -216,7 +208,6 @@ public class GCLogParser {
         return gcEvents;
 
     }
-     
 
     public static void main(String[] args) throws IOException {
         if (args.length < 1) {
@@ -239,6 +230,12 @@ public class GCLogParser {
                 endTS = Long.parseLong(args[2]);
             }
             gcEvents = bound(gcEvents, startTS, endTS);
+
+        }
+        if (gcEvents.size() == 0) {
+            System.out.println("No events for time interval");
+            System.exit(1);
+
         }
         switch (args[0]) {
             case "short":
@@ -251,25 +248,25 @@ public class GCLogParser {
                 printLong(gcEvents);
                 break;
             case "summary":
-                float span = gcEvents.get(gcEvents.size() - 1).TS;
-                Aggr pauseAggr = getAggr(gcEvents,false, longThresh);
-                Aggr concAggr = getAggr(gcEvents,true, longThresh);
+                float span = gcEvents.get(gcEvents.size() - 1).TS + gcEvents.get(gcEvents.size() - 1).real; // last event + its real time....
+                Aggr pauseAggr = getAggr(gcEvents, false, longThresh);
+                Aggr concAggr = getAggr(gcEvents, true, longThresh);
                 System.out.println("number Pausing GC events=" + pauseAggr.num);
                 System.out.println("number Concurrent GC events=" + concAggr.num);
                 System.out.println("number long(longer than 0.5 sec) GC events=" + pauseAggr.numLong);
-                System.out.println("span=" + floatz( span));
-                System.out.println("sum Pause=" + floatz( pauseAggr.sumReal));
-                System.out.println("Availability=" + floatz( 100 * (1 - (pauseAggr.sumReal / span))) + "%");
-                System.out.println(String.format("%-38s %9s %9s %6s %6s %9s","category","maxreal","sumreal","#","#long","cpu"));
+                System.out.println("span=" + floatz(span));
+                System.out.println("sum Pause=" + floatz(pauseAggr.sumReal));
+                System.out.println("Availability=" + floatz(100 * (1 - (pauseAggr.sumReal / span))) + "%");
+                System.out.println(String.format("%-38s %9s %9s %6s %6s %9s", "category", "maxreal", "sumreal", "#", "#long", "cpu"));
                 System.out.println("STW Time:                              " + pauseAggr.toString());
-                HashMap<String, Aggr> causes = getAggrByCause(gcEvents,false,longThresh);
+                HashMap<String, Aggr> causes = getAggrByCause(gcEvents, false, longThresh);
                 for (String cause : causes.keySet()) {
-                        System.out.println( String.format("  %-35s",cause) + ": "+causes.get(cause).toString());
+                    System.out.println(String.format("  %-35s", cause) + ": " + causes.get(cause).toString());
                 }
                 System.out.println("ConcTime:                              " + concAggr.toString());
-                causes = getAggrByCause(gcEvents,true,longThresh);
+                causes = getAggrByCause(gcEvents, true, longThresh);
                 for (String cause : causes.keySet()) {
-                        System.out.println( String.format("  %-35s",cause) +  ": "+causes.get(cause).toString());
+                    System.out.println(String.format("  %-35s", cause) + ": " + causes.get(cause).toString());
                 }
                 break;
         }
@@ -288,6 +285,7 @@ public class GCLogParser {
 
         return partial;
     }
+
     public static String floatz(float f) {
         return String.format("%.3f", f);
     }

@@ -26,9 +26,14 @@ public class Aggr {
             public void add(float real,float user,float sys) {
             num++;
             if (real > longThresh) numLong++;
-            sumReal += real;
+            if (real >=0)
+                sumReal += real;
             if (max < real) max = real;
-            cpuUsage += user+sys;
+            if (user>=0)
+                cpuUsage += user;
+            if (sys>=0)
+                cpuUsage += sys;
+                
             
         }
         public String toString() {

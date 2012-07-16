@@ -40,7 +40,7 @@ public class GCevent {
         "CMS-initial-mark",
         "Rescan (parallel)",
         //Parallel
-        "PSYoungGen", "ParOldGen",
+        "PSYoungGen", "ParOldGen","Full GC (System)",
         //G1
         "GC pause (young)",
         "GC pause (mixed)"

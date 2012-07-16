@@ -33,7 +33,10 @@
                             <classpathPrefix>libs/</classpathPrefix>
                             <mainClass>com.performizeit.gcstats.Main</mainClass>
                         </manifest>
-                        
+                        <manifestEntries>
+                            <Premain-Class>com.performizeit.gcstats.pausedetect.PDAgent</Premain-Class>
+                            <Agent-Class>com.performizeit.gcstats.pausedetect.PDAgent</Agent-Class>
+                        </manifestEntries>
                     </archive>
                 </configuration>
             </plugin>
