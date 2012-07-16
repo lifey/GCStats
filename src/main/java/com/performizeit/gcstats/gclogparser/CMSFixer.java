@@ -4,7 +4,7 @@
  */
 package com.performizeit.gcstats.gclogparser;
 
-import com.performizeit.gcstats.demo.threadtophack.OSUtil;
+import com.performizeit.jmxsupport.OSUtil;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
